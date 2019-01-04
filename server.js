@@ -8,7 +8,8 @@ const mongoose = require("mongoose");
 mongoose.Promise = global.Promise;
 
 const { PORT, DATABASE_URL } = require('./config');
-const { BlogPost } = require("./models");
+const { Author, BlogPost } = require("./models");
+
 
 const app = express();
 app.use(morgan('common'));
@@ -20,7 +21,6 @@ app.get('/posts',(req, res) => {
     .then(posts => {
         res.json(posts.map(post => post.serialize()));
     })
-    
     .catch(err => {
         console.error(err);
         res.status(500).json({ message: "Internal server error" });
@@ -40,7 +40,7 @@ app.get('/posts/:id', (req, res) => {
 })
 
 app.post('/posts', (req, res) => {
-    const requiredFields = ['title', 'author', 'content'];
+    const requiredFields = ['title', 'author_id', 'content'];
     for (let i = 0; i < requiredFields.length; i++) {
         const field = requiredFields[i];
         if(!(field in req.body)) {
@@ -49,6 +49,7 @@ app.post('/posts', (req, res) => {
             return res.status(400).send(message);
         }
     }
+    
     
     BlogPost.create({
         title: req.body.title,
